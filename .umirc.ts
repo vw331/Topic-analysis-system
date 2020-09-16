@@ -12,21 +12,22 @@ export default defineConfig({
   routes: [
     {
       path: '/',
-      title: 'Home',
-      component: '@/pages/index',
-      menu: {
-        name: '首页',
-        icon: 'HomeOutlined',
-      },
+      redirect: '/topic',
     },
     {
-      page: '/topic',
+      path: '/topic',
+      exact: true,
       title: '话题',
       component: '@/pages/topic/index',
       menu: {
         name: '话题',
         icon: 'HomeOutlined',
       },
+    },
+    {
+      path: '/topic/:id',
+      title: '话题详情',
+      component: '@/pages/topic/detail',
     },
   ],
   dva: {

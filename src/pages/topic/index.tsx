@@ -1,6 +1,15 @@
 import React, { FC, useEffect, useState } from 'react';
-import { Button, Table, Tag, Space, Modal, Form, Input } from 'antd';
-import { TopicModelState, connect, Dispatch, ConnectProps, Loading } from 'umi';
+import { Button, Table, Tag, Space, Modal, Form, Input, message } from 'antd';
+import {
+  TopicModelState,
+  connect,
+  Dispatch,
+  ConnectProps,
+  Loading,
+  history,
+} from 'umi';
+import { Topic } from '@/models/TopicModel';
+import { ExclamationCircleOutlined } from '@ant-design/icons';
 import './index.less';
 
 interface TopicPageProps extends ConnectProps {
@@ -11,7 +20,8 @@ interface TopicPageProps extends ConnectProps {
 
 const TopicPage: FC<TopicPageProps> = props => {
   const { dispatch, topic, loading } = props;
-  const isloading = loading.effects['topic/getTopicList'];
+  const isloading: boolean = loading.effects['topic/getTopicList'] || false;
+  const isSubmitLoading: boolean = loading.effects['topic/addTopic'] || false;
   const { topics } = topic;
   const [createForm] = Form.useForm();
 
@@ -23,12 +33,40 @@ const TopicPage: FC<TopicPageProps> = props => {
     });
   }, []);
 
-  const handleTableChange = (pagination: any, filters: any, sorter: any) => {
+  const handleTableChange = (pagination: any, filters?: any, sorter?: any) => {
     dispatch({
       type: 'topic/getTopicList',
       payload: {
         current: pagination.current,
         pageSize: pagination.pageSize,
+      },
+    });
+  };
+
+  const handleDeleteAction = (record: Topic) => {
+    Modal.confirm({
+      title: '提醒',
+      icon: <ExclamationCircleOutlined />,
+      content: `确定要删除"${record.project_name}"这条记录？`,
+      okType: 'danger',
+      onOk() {
+        return new Promise((resolve, reject) => {
+          dispatch({
+            type: 'topic/delTopic',
+            payload: record.project_id,
+            callback: ({ success, msg }: any) => {
+              if (success) {
+                message.success(msg);
+                dispatch({
+                  type: 'topic/getTopicList',
+                });
+              } else {
+                message.error(msg);
+              }
+              resolve();
+            },
+          });
+        }).catch(() => console.log('Oops errors!'));
       },
     });
   };
@@ -58,15 +96,29 @@ const TopicPage: FC<TopicPageProps> = props => {
       title: '状态',
       dataIndex: 'project_status',
       key: 'project_status',
+      render: (status: number) => {
+        switch (status) {
+          case 1:
+            return <Tag color="red">未开始</Tag>;
+          case 2:
+            return <Tag color="blue">分析完成</Tag>;
+          case 3:
+            return <Tag color="warning">分析中</Tag>;
+          default:
+            return null;
+        }
+      },
     },
     {
       title: '操作',
       dataIndex: 'project_id',
       key: 'project_id',
-      render: (text: string, record: any) => (
+      render: (text: string, record: Topic) => (
         <Space size="middle">
-          <a>查看</a>
-          <a>删除</a>
+          <a onClick={() => history.push(`/topic/${record.project_id}`)}>
+            查看
+          </a>
+          <a onClick={() => handleDeleteAction(record)}>删除</a>
         </Space>
       ),
     },
@@ -76,12 +128,29 @@ const TopicPage: FC<TopicPageProps> = props => {
     <Modal
       title="创建新项目"
       visible={createModalVisible}
+      destroyOnClose={true}
       onCancel={() => {
         setcreateModalVisible(false);
       }}
+      confirmLoading={isSubmitLoading}
       onOk={() => {
         createForm.validateFields().then(values => {
-          console.log(values);
+          dispatch({
+            type: 'topic/addTopic',
+            payload: values,
+            callback: ({ success, msg }) => {
+              if (success) {
+                message.success(msg);
+                createForm.resetFields();
+                setcreateModalVisible(false);
+                dispatch({
+                  type: 'topic/getTopicList',
+                });
+              } else {
+                message.error(msg);
+              }
+            },
+          });
         });
       }}
     >
@@ -89,15 +158,15 @@ const TopicPage: FC<TopicPageProps> = props => {
         <Form.Item
           label="项目名称"
           name="projct_name"
-          rules={[
-            { required: true, message: 'Please input your project name!' },
-          ]}
+          rules={[{ required: true, message: '请输入项目名称' }]}
         >
           <Input />
         </Form.Item>
       </Form>
     </Modal>
   );
+
+  console.log(topics?.pagination);
 
   return (
     <div className="site-page-header-ghost-wrapper">

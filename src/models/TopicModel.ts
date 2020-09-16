@@ -1,5 +1,5 @@
 import { Effect, Reducer, Subscription } from 'umi';
-import { getTopics } from '@/services/Topic';
+import { getTopics, addTopic, delTopic } from '@/services/Topic';
 
 export interface Topic {
   project_id: string;
@@ -30,6 +30,8 @@ export interface TopicModelType {
   };
   effects: {
     getTopicList: Effect;
+    addTopic: Effect;
+    delTopic: Effect;
   };
 }
 
@@ -47,6 +49,18 @@ const TopicModel: TopicModelType = {
         type: 'show',
         payload: { topics: response as Pageable },
       });
+    },
+    *addTopic(action, effects) {
+      const { payload, callback } = action;
+      const { call, put } = effects;
+      const response = yield call(addTopic, payload);
+      callback && callback(response);
+    },
+    *delTopic(action, effects) {
+      const { payload, callback } = action;
+      const { call, put } = effects;
+      const response = yield call(delTopic, payload);
+      callback && callback(response);
     },
   },
   reducers: {
