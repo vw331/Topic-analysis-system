@@ -28,6 +28,10 @@ export default defineConfig({
       path: '/topic/:id',
       title: '话题详情',
       component: '@/pages/topic/detail',
+      layout: {
+        hideMenu: true,
+        hideNav: true,
+      },
     },
   ],
   dva: {
