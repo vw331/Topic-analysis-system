@@ -17,6 +17,8 @@ import { UserOutlined } from '@ant-design/icons';
 import { Column, StackedColumn, WordCloud, Bubble } from '@ant-design/charts';
 import { ColumnsType } from 'antd/es/table';
 import './analytics.less';
+import { WordCloudConfig } from '@ant-design/charts/es/wordCloud';
+import { BubbleConfig } from '@ant-design/charts/es/bubble';
 
 const { RangePicker } = DatePicker;
 
@@ -140,9 +142,9 @@ const WordCloudChars: FC = props => {
         console.log('fetch data failed', error);
       });
   };
-  const config = getWordCloudConfig(data);
-  function getDataList(data) {
-    const list = [];
+  const config: WordCloudConfig = getWordCloudConfig(data);
+  function getDataList(data: any[]) {
+    const list: any[] = [];
     data.forEach(d => {
       list.push({
         word: d.name,
@@ -152,7 +154,7 @@ const WordCloudChars: FC = props => {
     });
     return list;
   }
-  function getWordCloudConfig(data) {
+  function getWordCloudConfig(data: any): WordCloudConfig {
     return {
       width: 600,
       height: 400,
@@ -164,7 +166,7 @@ const WordCloudChars: FC = props => {
         rotateRatio: 0.5,
         rotationSteps: 4,
         fontSize: [10, 60],
-        color: (word, weight) => {
+        color: () => {
           return getRandomColor();
         },
         active: {
@@ -176,9 +178,9 @@ const WordCloudChars: FC = props => {
       shape: 'cardioid',
       shuffle: false,
       backgroundColor: '#fff',
-      tooltip: { visible: true },
+      //tooltip: { visible: true },
       selected: -1,
-      onWordCloudHover: hoverAction,
+      //onWordCloudHover: hoverAction,
     };
   }
   function getRandomColor() {
@@ -196,7 +198,7 @@ const WordCloudChars: FC = props => {
     ];
     return arr[Math.floor(Math.random() * (arr.length - 1))];
   }
-  function hoverAction(item, dimension, evt, start) {}
+  // function hoverAction(item, dimension, evt, start) {}
   return <WordCloud {...config} />;
 };
 
@@ -218,7 +220,7 @@ const BubbleCharts: FC = props => {
         console.log('fetch data failed', error);
       });
   };
-  const config = {
+  const config: BubbleConfig = {
     title: {
       visible: true,
       text: '多话题关联',

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { Topic, Pageable } from '@/models/TopicModel';
+import { Topic, Pageable, TopicStatus } from '@/models/TopicModel';
 
 const sleep = (time: number = 2000) =>
   new Promise(resolve => setTimeout(resolve, time));
@@ -12,10 +12,10 @@ const getRandom = (start: number, end: number, fixed = 0): number => {
 
 export default {
   'GET /api/test': { msg: 'hello this is test' },
-  'POST /api/topics': async (req: Request, res: Response) => {
+  'POST /api/new_project': async (req: Request, res: Response) => {
     await sleep(1000);
     res.send({
-      success: true,
+      isSuccess: true,
       msg: '创建成功!',
     });
   },
@@ -27,20 +27,21 @@ export default {
       msg: '删除成功!',
     });
   },
-  'GET /api/topics': async (req: Request, res: Response) => {
+  'GET /api/project_list': async (req: Request, res: Response) => {
     const { current = '1', pageSize = '20' } = req.query;
+    const statusArr: TopicStatus[] = ['idle', 'analysising', 'ok'];
     const topic: Topic = {
       project_id: '0',
-      project_name: '名称',
-      project_author: '张三',
-      create_time: '2020-09-12',
-      project_status: 1,
+      name: '名称',
+      author: '张三',
+      create_date: '2020-09-12',
+      status: 'idle',
     };
 
     const records: Topic[] = new Array(20).fill(topic).map((item, index) => {
       return {
         ...item,
-        project_status: getRandom(1, 3),
+        status: statusArr[getRandom(0, 2)],
         project_id:
           'PK_' +
           ((parseInt(current as string) - 1) * parseInt(pageSize as string) +

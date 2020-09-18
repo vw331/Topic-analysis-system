@@ -1,12 +1,18 @@
 import { Effect, Reducer, Subscription } from 'umi';
 import { getTopics, addTopic, delTopic } from '@/services/Topic';
 
+export type TopicStatus = 'idle' | 'analysising' | 'ok';
+
 export interface Topic {
   project_id: string;
-  project_name: string;
-  project_author: string;
-  create_time: string;
-  project_status: number;
+  name: string;
+  author: string;
+  create_date: string;
+  status: TopicStatus;
+}
+
+export interface NewTopic {
+  name: string;
 }
 
 export interface Pageable {
@@ -44,6 +50,7 @@ const TopicModel: TopicModelType = {
     *getTopicList(action, effects) {
       const { payload } = action;
       const { call, put } = effects;
+      console.log('getTopics');
       const response = yield call(getTopics, payload);
       yield put({
         type: 'show',

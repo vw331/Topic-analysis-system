@@ -1,5 +1,6 @@
 import React, { FC, useEffect, useState } from 'react';
 import { Button, Table, Tag, Space, Modal, Form, Input, message } from 'antd';
+import { ColumnsType } from 'antd/es/table';
 import {
   TopicModelState,
   connect,
@@ -8,7 +9,7 @@ import {
   Loading,
   history,
 } from 'umi';
-import { Topic } from '@/models/TopicModel';
+import { Topic, NewTopic, TopicStatus } from '@/models/TopicModel';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import './index.less';
 
@@ -47,7 +48,7 @@ const TopicPage: FC<TopicPageProps> = props => {
     Modal.confirm({
       title: '提醒',
       icon: <ExclamationCircleOutlined />,
-      content: `确定要删除"${record.project_name}"这条记录？`,
+      content: `确定要删除"${record.name}"这条记录？`,
       okType: 'danger',
       onOk() {
         return new Promise((resolve, reject) => {
@@ -71,7 +72,7 @@ const TopicPage: FC<TopicPageProps> = props => {
     });
   };
 
-  const columns = [
+  const columns: ColumnsType<Topic> = [
     {
       title: '项目ID',
       dataIndex: 'project_id',
@@ -79,30 +80,30 @@ const TopicPage: FC<TopicPageProps> = props => {
     },
     {
       title: '项目名称',
-      dataIndex: 'project_name',
-      key: 'project_name',
+      dataIndex: 'name',
+      key: 'name',
     },
     {
       title: '创建日期',
-      dataIndex: 'create_time',
-      key: 'create_time',
+      dataIndex: 'create_date',
+      key: 'create_date',
     },
     {
       title: '创建者',
-      dataIndex: 'project_author',
-      key: 'project_author',
+      dataIndex: 'author',
+      key: 'author',
     },
     {
       title: '状态',
-      dataIndex: 'project_status',
-      key: 'project_status',
-      render: (status: number) => {
+      dataIndex: 'status',
+      key: 'status',
+      render: (status: TopicStatus) => {
         switch (status) {
-          case 1:
+          case 'idle':
             return <Tag color="red">未开始</Tag>;
-          case 2:
+          case 'analysising':
             return <Tag color="blue">分析完成</Tag>;
-          case 3:
+          case 'ok':
             return <Tag color="warning">分析中</Tag>;
           default:
             return null;
@@ -157,7 +158,7 @@ const TopicPage: FC<TopicPageProps> = props => {
       <Form form={createForm}>
         <Form.Item
           label="项目名称"
-          name="projct_name"
+          name="name"
           rules={[{ required: true, message: '请输入项目名称' }]}
         >
           <Input />
@@ -165,8 +166,6 @@ const TopicPage: FC<TopicPageProps> = props => {
       </Form>
     </Modal>
   );
-
-  console.log(topics?.pagination);
 
   return (
     <div className="site-page-header-ghost-wrapper">

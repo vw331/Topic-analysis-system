@@ -102,7 +102,7 @@ const TopicDetailPage: FC<{}> = props => {
   );
 };
 
-const mapStateToProps = props => ({
+const mapStateToProps = (props: any) => ({
   topic: props.topic,
   loading: props.loading,
 });

@@ -12,7 +12,7 @@ export async function getTopics(
     pageSize: 20,
   },
 ) {
-  return request(`/api/topics`, {
+  return request(`/api/project_list`, {
     params: params,
   });
 }
