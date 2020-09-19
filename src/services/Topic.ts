@@ -5,7 +5,7 @@ export interface TopicParams {
   pageSize: number;
 }
 
-// 获取话题
+// 获取话题列表
 export async function getTopics(
   params: TopicParams = {
     current: 1,
@@ -23,7 +23,7 @@ export interface TopicBody {
 
 // 创建话题
 export async function addTopic(body: TopicBody) {
-  return request('/api/topics', {
+  return request('/api/new_project', {
     method: 'POST',
     data: body,
   });
@@ -31,7 +31,10 @@ export async function addTopic(body: TopicBody) {
 
 // 删除话题
 export async function delTopic(id: string) {
-  return request(`/api/topics/${id}`, {
-    method: 'DELETE',
-  });
+  return request(`/api/del_project/${id}`);
+}
+
+// 获取话题
+export async function getTopic(id: string) {
+  return request(`/api/project/${id}`);
 }

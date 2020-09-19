@@ -1,8 +1,9 @@
-import React, { FC } from 'react';
+import React, { FC, useEffect } from 'react';
 import {
   Layout,
   Card,
   Form,
+  Spin,
   Input,
   Button,
   DatePicker,
@@ -10,13 +11,47 @@ import {
   Radio,
 } from 'antd';
 import { LeftOutlined } from '@ant-design/icons';
-import { connect, history } from 'umi';
-
+import {
+  useParams,
+  connect,
+  history,
+  ConnectProps,
+  Loading,
+  Dispatch,
+} from 'umi';
 import AnalyticsComponent from './analytics';
+import AnalyticsFormComponent from './form';
+import { TopicModelState } from '@/models/TopicModel';
 const { Header, Footer, Sider, Content } = Layout;
 const { RangePicker } = DatePicker;
 
-const TopicDetailPage: FC<{}> = props => {
+interface TopicPageProps extends ConnectProps {
+  topic: TopicModelState;
+  loading: Loading;
+  dispatch: Dispatch;
+}
+
+const TopicDetailPage: FC<TopicPageProps> = props => {
+  const { topic, loading, dispatch, history } = props;
+  const isloading: boolean = loading.effects['topic/getTopic'] || false;
+  const params: any = useParams();
+  const { id } = params;
+
+  useEffect(() => {
+    dispatch({
+      type: 'topic/getTopic',
+      payload: id,
+    });
+  }, []);
+
+  if (!topic.topic || isloading) {
+    return (
+      <div className="text-center p-4">
+        <Spin />
+      </div>
+    );
+  }
+
   return (
     <Layout>
       <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
@@ -27,82 +62,25 @@ const TopicDetailPage: FC<{}> = props => {
         >
           返回首页
         </Button>
-        <span className="text-white ml-10 text-lg font-bold">#话题名称#</span>
+        <span className="text-white ml-10 text-lg font-bold">
+          #{topic.topic.name}#
+        </span>
       </Header>
       <Layout style={{ marginTop: 64 }}>
         <Sider style={{ marginTop: 15 }} theme="light" width="300">
           <Card title="配置区" bordered={false}>
-            <Form layout="vertical">
-              <Form.Item
-                label="关键字"
-                name="keyword"
-                rules={[
-                  { required: true, message: 'Please input your username!' },
-                ]}
-              >
-                <Input />
-              </Form.Item>
-              <Form.Item label="微博">
-                <Form.Item
-                  style={{ marginBottom: 0 }}
-                  label="时间段"
-                  name="wb-range"
-                  rules={[
-                    { required: true, message: 'Please input your username!' },
-                  ]}
-                >
-                  <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" />
-                </Form.Item>
-              </Form.Item>
-              <Form.Item label="知乎">
-                <Form.Item
-                  style={{ marginBottom: 0 }}
-                  label="时间段"
-                  name="zh-range"
-                  rules={[
-                    { required: true, message: 'Please input your username!' },
-                  ]}
-                >
-                  <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" />
-                </Form.Item>
-              </Form.Item>
-              <Form.Item label="B站">
-                <Form.Item
-                  style={{ marginBottom: 0 }}
-                  label="时间段"
-                  name="bli-range"
-                  rules={[
-                    { required: true, message: 'Please input your username!' },
-                  ]}
-                >
-                  <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" />
-                </Form.Item>
-              </Form.Item>
-              <Form.Item label="分析指标">
-                <Radio.Group name="quota">
-                  <Radio value="a">话题热度</Radio>
-                  <Radio value="b">主要观点</Radio>
-                  <Radio value="c">用户态度</Radio>
-                  <Radio value="d">用户画像</Radio>
-                </Radio.Group>
-              </Form.Item>
-              <Form.Item>
-                <Button type="primary" block htmlType="submit">
-                  开始分析
-                </Button>
-              </Form.Item>
-            </Form>
+            <AnalyticsFormComponent />
           </Card>
         </Sider>
         <Content>
-          <AnalyticsComponent />
+          <AnalyticsComponent status="analysising" />
         </Content>
       </Layout>
     </Layout>
   );
 };
 
-const mapStateToProps = (props: any) => ({
+const mapStateToProps = (props: TopicPageProps) => ({
   topic: props.topic,
   loading: props.loading,
 });

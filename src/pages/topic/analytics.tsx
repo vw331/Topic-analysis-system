@@ -16,6 +16,15 @@ import {
 import { UserOutlined } from '@ant-design/icons';
 import { Column, StackedColumn, WordCloud, Bubble } from '@ant-design/charts';
 import { ColumnsType } from 'antd/es/table';
+import {
+  TopicModelState,
+  connect,
+  Dispatch,
+  ConnectProps,
+  Loading,
+  history,
+} from 'umi';
+import { TopicStatus } from '@/models/TopicModel';
 import './analytics.less';
 import { WordCloudConfig } from '@ant-design/charts/es/wordCloud';
 import { BubbleConfig } from '@ant-design/charts/es/bubble';
@@ -253,12 +262,17 @@ const HotMessageTable: FC = props => {
     create_time: string;
   }
 
-  const data: HotMessage[] = new Array(8).fill({
-    id: '1',
-    title: '热门信息',
-    source: '今日头条',
-    create_time: '2020-02-12',
-  });
+  const data: HotMessage[] = new Array(8)
+    .fill({
+      id: '1',
+      title: '热门信息',
+      source: '今日头条',
+      create_time: '2020-02-12',
+    })
+    .map((item, index) => ({
+      ...item,
+      id: index,
+    }));
 
   const columns: ColumnsType<HotMessage> = [
     {
@@ -309,9 +323,9 @@ const HotNetizenTag: FC = props => {
   const cardGrid = (list: any[]) => {
     return (
       <Card bodyStyle={{ padding: 0 }}>
-        {list.map(item => {
+        {list.map((item, index) => {
           return (
-            <Card.Grid style={{ width: '25%' }}>
+            <Card.Grid style={{ width: '25%' }} key={index}>
               <Card.Meta
                 avatar={
                   <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
@@ -354,7 +368,15 @@ const HotNetizenTag: FC = props => {
   );
 };
 
-const AnalyticsComponent: FC<{}> = props => {
+interface AnalyticsPageProps {
+  status?: TopicStatus;
+  loading: Loading;
+  dispatch: Dispatch;
+}
+
+const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
+  const { status } = props;
+  console.log(status);
   const dataList = [
     '工专路0号',
     '工专路1号',
@@ -519,4 +541,6 @@ const AnalyticsComponent: FC<{}> = props => {
   );
 };
 
-export default AnalyticsComponent;
+export default connect((props: AnalyticsPageProps) => ({
+  loading: props.loading,
+}))(AnalyticsComponent);

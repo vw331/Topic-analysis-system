@@ -9,7 +9,13 @@ import {
   Loading,
   history,
 } from 'umi';
-import { Topic, NewTopic, TopicStatus } from '@/models/TopicModel';
+import {
+  Topic,
+  NewTopic,
+  TopicStatus,
+  NewTopicResponse,
+  DelTopicResponse,
+} from '@/models/TopicModel';
 import { ExclamationCircleOutlined } from '@ant-design/icons';
 import './index.less';
 
@@ -55,9 +61,9 @@ const TopicPage: FC<TopicPageProps> = props => {
           dispatch({
             type: 'topic/delTopic',
             payload: record.project_id,
-            callback: ({ success, msg }: any) => {
-              if (success) {
-                message.success(msg);
+            callback: ({ isSuccess, msg }: DelTopicResponse) => {
+              if (isSuccess) {
+                message.success('已删除');
                 dispatch({
                   type: 'topic/getTopicList',
                 });
@@ -139,16 +145,17 @@ const TopicPage: FC<TopicPageProps> = props => {
           dispatch({
             type: 'topic/addTopic',
             payload: values,
-            callback: ({ success, msg }) => {
-              if (success) {
-                message.success(msg);
+            callback: (response: NewTopicResponse) => {
+              const { isSuccess } = response;
+              if (isSuccess) {
+                message.success('创建成功!');
                 createForm.resetFields();
                 setcreateModalVisible(false);
                 dispatch({
                   type: 'topic/getTopicList',
                 });
               } else {
-                message.error(msg);
+                message.error('创建失败!');
               }
             },
           });
