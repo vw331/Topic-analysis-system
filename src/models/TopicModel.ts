@@ -1,5 +1,6 @@
-import { Effect, Reducer, Subscription } from 'umi';
+import { Effect, Reducer, Subscription, AnalyticsDataSourceConfig } from 'umi';
 import { getTopics, getTopic, addTopic, delTopic } from '@/services/Topic';
+import { AnalyticsConfig } from './AnalyticsModel';
 
 export type TopicStatus = 'idle' | 'analysising' | 'ok';
 
@@ -9,6 +10,11 @@ export interface Topic {
   author: string;
   create_date: string;
   status: TopicStatus;
+}
+
+export interface TopicInfo {
+  project: Topic;
+  config: AnalyticsConfig;
 }
 
 export interface NewTopic {
@@ -36,7 +42,7 @@ export interface Pageable {
 
 export interface TopicModelState {
   topics: Pageable | null;
-  topic: Topic | null;
+  topic: TopicInfo | null;
 }
 
 export interface TopicModelType {
@@ -75,7 +81,7 @@ const TopicModel: TopicModelType = {
       const response = yield call(getTopic, payload);
       yield put({
         type: 'save',
-        payload: { topic: response as Topic },
+        payload: { topic: response as TopicInfo },
       });
     },
     *addTopic(action, effects) {

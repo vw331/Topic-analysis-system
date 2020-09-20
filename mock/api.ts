@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import {
   Topic,
+  TopicInfo,
   Pageable,
   TopicStatus,
   NewTopicResponse,
@@ -72,12 +73,31 @@ export default {
   'GET /api/project/:id': async (req: Request, res: Response) => {
     const { id } = req.params;
     await sleep(2000);
-    const result: Topic = {
-      project_id: id,
-      name: '测试专用',
-      author: 'sunhao',
-      create_date: '2020-03-13',
-      status: 'analysising',
+    const result: TopicInfo = {
+      project: {
+        project_id: id,
+        name: '测试专用',
+        author: 'sunhao',
+        create_date: '2020-03-13',
+        status: 'analysising',
+      },
+      config: {
+        datasources: [
+          {
+            from_date: '2020-06-01',
+            name: 'bilibili',
+            to_date: '2020-08-08',
+          },
+          {
+            from_date: '2020-06-01',
+            name: '微博',
+            to_date: '2020-08-08',
+          },
+        ],
+        indicators: ['热度', '基本用户画像', '话题聚类'],
+        keyword: 'AR',
+        project_id: '3',
+      },
     };
     res.send(result);
   },

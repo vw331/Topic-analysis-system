@@ -18,6 +18,7 @@ import {
   ConnectProps,
   Loading,
   Dispatch,
+  AnalyticsConfig,
 } from 'umi';
 import AnalyticsComponent from './analytics';
 import AnalyticsFormComponent from './form';
@@ -36,6 +37,7 @@ const TopicDetailPage: FC<TopicPageProps> = props => {
   const isloading: boolean = loading.effects['topic/getTopic'] || false;
   const params: any = useParams();
   const { id } = params;
+  const analyticsConfig = topic?.topic?.config as AnalyticsConfig;
 
   useEffect(() => {
     dispatch({
@@ -63,18 +65,16 @@ const TopicDetailPage: FC<TopicPageProps> = props => {
           返回首页
         </Button>
         <span className="text-white ml-10 text-lg font-bold">
-          #{topic.topic.name}#
+          #{topic.topic.project.name}#
         </span>
       </Header>
       <Layout style={{ marginTop: 64 }}>
-        <Sider style={{ marginTop: 15 }} theme="light" width="300">
-          <Card title="配置区" bordered={false}>
-            <AnalyticsFormComponent />
+        <Sider style={{ marginTop: 15 }} theme="light" width="350">
+          <Card bordered={false}>
+            <AnalyticsFormComponent analyticsConfig={analyticsConfig} />
           </Card>
         </Sider>
-        <Content>
-          <AnalyticsComponent status="analysising" />
-        </Content>
+        <Content>{/** <AnalyticsComponent status="analysising"/>   */}</Content>
       </Layout>
     </Layout>
   );

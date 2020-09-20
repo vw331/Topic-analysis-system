@@ -8,7 +8,7 @@ export interface AnalyticsDataSourceConfig {
 }
 
 export interface AnalyticsConfigOptions {
-  success: boolean;
+  success?: boolean;
   datasources: string[];
   indicators: string[];
 }
@@ -16,14 +16,13 @@ export interface AnalyticsConfigOptions {
 export interface AnalyticsConfig {
   project_id: string;
   keyword: string;
-  datasource: AnalyticsDataSourceConfig[];
+  datasources: AnalyticsDataSourceConfig[];
   indicators: string[];
 }
 
 export interface AnalyticsModelState {
   test: string;
   analyticsConfigOptions: AnalyticsConfigOptions | null;
-  analyticsConfig: AnalyticsConfig | null;
 }
 
 export interface AnalyticsModelType {
@@ -45,14 +44,12 @@ const AnalyticsModel: AnalyticsModelType = {
   state: {
     test: 'hello',
     analyticsConfigOptions: null,
-    analyticsConfig: null,
   },
   effects: {
     *getConfigOptions(action, effects) {
       const { payload, type } = action;
       const { call, put } = effects;
       const response = yield call(getConfigOptions, payload);
-      console.log(response);
       yield put({
         type: 'save',
         payload: {

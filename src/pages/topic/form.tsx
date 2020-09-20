@@ -1,12 +1,23 @@
 import React, { FC } from 'react';
-import { Form, Input, DatePicker, Radio, Button } from 'antd';
+import {
+  Form,
+  Input,
+  DatePicker,
+  Radio,
+  Button,
+  Spin,
+  Space,
+  Checkbox,
+} from 'antd';
 import { connect, ConnectProps, Dispatch, Loading } from 'umi';
+import moment from 'moment';
 
-import { AnalyticsModelState } from '@/models/AnalyticsModel';
+import { AnalyticsModelState, AnalyticsConfig } from '@/models/AnalyticsModel';
 const { RangePicker } = DatePicker;
 
 interface AnalyticsFormPageProps extends ConnectProps {
   analytics: AnalyticsModelState;
+  analyticsConfig: AnalyticsConfig | null;
   loading: Loading;
   dispatch: Dispatch;
 }
@@ -14,56 +25,95 @@ interface AnalyticsFormPageProps extends ConnectProps {
 const AnalyticsFormComponent: FC<AnalyticsFormPageProps> = (
   props: AnalyticsFormPageProps,
 ) => {
-  const { analytics } = props;
+  const { analytics, loading, analyticsConfig } = props;
+  const isLoading: boolean =
+    loading.effects['analytics/getConfigOptions'] || false;
 
-  console.log(props);
+  if (isLoading) {
+    return (
+      <div className="text-center p-10">
+        <Spin />
+      </div>
+    );
+  }
+
+  const indicatorsOptions = analytics.analyticsConfigOptions?.indicators;
+  const dataSourceConfigs = analytics.analyticsConfigOptions?.datasources.map(
+    (name, index) => {
+      const result = analyticsConfig?.datasources.find(
+        data => data.name == name,
+      );
+      return {
+        key: index,
+        name,
+        from_date: result?.from_date
+          ? moment(result?.from_date, 'YYYY-MM-DD')
+          : null,
+        to_date: result?.to_date ? moment(result?.to_date, 'YYYY-MM-DD') : null,
+      };
+    },
+  );
+  console.log(dataSourceConfigs);
+
+  const getDataSourceFieldLabel = (field: any) => {
+    const item = dataSourceConfigs?.find(i => i.key == field.key);
+    return `【${item?.name}】时间段`;
+  };
 
   return (
-    <Form layout="vertical">
-      <Form.Item
-        label="关键字"
-        name="keyword"
-        rules={[{ required: true, message: 'Please input your username!' }]}
-      >
+    <Form
+      onFinish={values => {
+        console.log(values);
+      }}
+      layout="vertical"
+      initialValues={{
+        keyword: analyticsConfig?.keyword,
+        datasources: dataSourceConfigs,
+        indicators: analyticsConfig?.indicators,
+      }}
+    >
+      <Form.Item label="关键字" name="keyword">
         <Input />
       </Form.Item>
-      <Form.Item label="微博">
-        <Form.Item
-          style={{ marginBottom: 0 }}
-          label="时间段"
-          name="wb-range"
-          rules={[{ required: true, message: 'Please input your username!' }]}
-        >
-          <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" />
-        </Form.Item>
-      </Form.Item>
-      <Form.Item label="知乎">
-        <Form.Item
-          style={{ marginBottom: 0 }}
-          label="时间段"
-          name="zh-range"
-          rules={[{ required: true, message: 'Please input your username!' }]}
-        >
-          <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" />
-        </Form.Item>
-      </Form.Item>
-      <Form.Item label="B站">
-        <Form.Item
-          style={{ marginBottom: 0 }}
-          label="时间段"
-          name="bli-range"
-          rules={[{ required: true, message: 'Please input your username!' }]}
-        >
-          <RangePicker showTime format="YYYY-MM-DD HH:mm:ss" />
-        </Form.Item>
-      </Form.Item>
-      <Form.Item label="分析指标">
-        <Radio.Group name="quota">
-          <Radio value="a">话题热度</Radio>
-          <Radio value="b">主要观点</Radio>
-          <Radio value="c">用户态度</Radio>
-          <Radio value="d">用户画像</Radio>
-        </Radio.Group>
+      <Form.List name="datasources">
+        {fields => {
+          return (
+            <div>
+              {fields.map(field => (
+                <Form.Item
+                  key={field.key}
+                  label={getDataSourceFieldLabel(field)}
+                  style={{ marginBottom: 0 }}
+                >
+                  <Space
+                    key={field.key}
+                    style={{ display: 'flex' }}
+                    align="start"
+                  >
+                    <Form.Item
+                      {...field}
+                      name={[field.name, 'from_date']}
+                      fieldKey={[field.fieldKey, 'first']}
+                    >
+                      <DatePicker placeholder="起始时间" />
+                    </Form.Item>
+                    <Form.Item
+                      {...field}
+                      name={[field.name, 'to_date']}
+                      fieldKey={[field.fieldKey, 'last']}
+                    >
+                      <DatePicker placeholder="结束时间" />
+                    </Form.Item>
+                  </Space>
+                </Form.Item>
+              ))}
+            </div>
+          );
+        }}
+      </Form.List>
+
+      <Form.Item label="分析指标" name="indicators">
+        <Checkbox.Group options={indicatorsOptions}></Checkbox.Group>
       </Form.Item>
       <Form.Item>
         <Button type="primary" block htmlType="submit">
