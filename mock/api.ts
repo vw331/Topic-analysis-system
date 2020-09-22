@@ -11,6 +11,7 @@ import {
   AnalyticsDataSourceConfig,
   AnalyticsConfigOptions,
   AnalyticsConfig,
+  AnalyticsData,
 } from '@/models/AnalyticsModel';
 import request from '@/utils/request';
 
@@ -74,30 +75,33 @@ export default {
     const { id } = req.params;
     await sleep(2000);
     const result: TopicInfo = {
-      project: {
-        project_id: id,
-        name: '测试专用',
-        author: 'sunhao',
-        create_date: '2020-03-13',
-        status: 'analysising',
+      data: {
+        project: {
+          project_id: id,
+          name: '测试专用',
+          author: 'sunhao',
+          create_date: '2020-03-13',
+          status: 'ok',
+        },
+        config: {
+          datasources: [
+            {
+              from_date: '2020-06-01',
+              name: 'bilibili',
+              to_date: '2020-08-08',
+            },
+            {
+              from_date: '2020-06-01',
+              name: '微博',
+              to_date: '2020-08-08',
+            },
+          ],
+          indicators: ['热度', '基本用户画像', '话题聚类'],
+          keyword: 'AR',
+          project_id: '3',
+        },
       },
-      config: {
-        datasources: [
-          {
-            from_date: '2020-06-01',
-            name: 'bilibili',
-            to_date: '2020-08-08',
-          },
-          {
-            from_date: '2020-06-01',
-            name: '微博',
-            to_date: '2020-08-08',
-          },
-        ],
-        indicators: ['热度', '基本用户画像', '话题聚类'],
-        keyword: 'AR',
-        project_id: '3',
-      },
+      isExist: true,
     };
     res.send(result);
   },
@@ -109,5 +113,106 @@ export default {
       indicators: ['话题热度', '主要观点', '用户态度', '用户画像'],
     };
     res.send(result);
+  },
+  'POST /api/update_config': async (req: Request, res: Response) => {
+    await sleep(200);
+    res.send({ isSuccess: true });
+  },
+  'GET /api/analytics_data/:id': async (req: Request, res: Response) => {
+    await sleep(200);
+    const result: AnalyticsData = {
+      general: [
+        {
+          title: '讨论量总计',
+          brand_color: 'black',
+          total_all: 345243,
+          total_week: 2345,
+        },
+        {
+          title: 'B站讨论量',
+          brand_color: 'blue',
+          total_all: 24235,
+          total_week: 2345,
+        },
+        {
+          title: '微博讨论量',
+          brand_color: 'red',
+          total_all: 24235,
+          total_week: 2345,
+        },
+        {
+          title: '知乎讨论量',
+          brand_color: 'blue',
+          total_all: 24235,
+          total_week: 2345,
+        },
+      ],
+      hot_topic: {
+        groupField: 'name',
+        data: [
+          {
+            name: 'b站',
+            value: 653,
+            time: '1月',
+          },
+          {
+            name: 'b站',
+            value: 231,
+            time: '2月',
+          },
+          {
+            name: 'b站',
+            value: 124,
+            time: '3月',
+          },
+          {
+            name: 'b站',
+            value: 756,
+            time: '4月',
+          },
+          {
+            name: 'b站',
+            value: 54,
+            time: '5月',
+          },
+          {
+            name: 'b站',
+            value: 986,
+            time: '6月',
+          },
+          {
+            name: '微博',
+            value: 234,
+            time: '1月',
+          },
+          {
+            name: '微博',
+            value: 65,
+            time: '2月',
+          },
+          {
+            name: '微博',
+            value: 345,
+            time: '3月',
+          },
+          {
+            name: '微博',
+            value: 123,
+            time: '4月',
+          },
+          {
+            name: '微博',
+            value: 765,
+            time: '5月',
+          },
+          {
+            name: '微博',
+            value: 433,
+            time: '6月',
+          },
+        ],
+      },
+    };
+    res.send({ isSuccess: true, data: result });
   },
 };

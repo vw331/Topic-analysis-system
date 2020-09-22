@@ -8,6 +8,7 @@ import {
   Spin,
   Space,
   Checkbox,
+  message,
 } from 'antd';
 import { connect, ConnectProps, Dispatch, Loading } from 'umi';
 import moment from 'moment';
@@ -17,7 +18,7 @@ const { RangePicker } = DatePicker;
 
 interface AnalyticsFormPageProps extends ConnectProps {
   analytics: AnalyticsModelState;
-  analyticsConfig: AnalyticsConfig | null;
+  analyticsConfig?: AnalyticsConfig;
   loading: Loading;
   dispatch: Dispatch;
 }
@@ -25,9 +26,11 @@ interface AnalyticsFormPageProps extends ConnectProps {
 const AnalyticsFormComponent: FC<AnalyticsFormPageProps> = (
   props: AnalyticsFormPageProps,
 ) => {
-  const { analytics, loading, analyticsConfig } = props;
+  const { analytics, loading, analyticsConfig, dispatch } = props;
   const isLoading: boolean =
     loading.effects['analytics/getConfigOptions'] || false;
+  const submitLoading: boolean =
+    loading.effects['analytics/saveConfig'] || false;
 
   if (isLoading) {
     return (
@@ -53,18 +56,53 @@ const AnalyticsFormComponent: FC<AnalyticsFormPageProps> = (
       };
     },
   );
-  console.log(dataSourceConfigs);
 
   const getDataSourceFieldLabel = (field: any) => {
     const item = dataSourceConfigs?.find(i => i.key == field.key);
     return `【${item?.name}】时间段`;
   };
 
+  const deepCloneAndSerialize = (source: any) => {
+    if (source && source._isAMomentObject) {
+      return source.format('YYYY-MM-DD');
+    }
+    const type = Object.prototype.toString.call(source);
+    let target: any;
+    if (/Array/.test(type)) {
+      target = source.map((item: any) => deepCloneAndSerialize(item));
+    } else if (/Object/.test(type)) {
+      target = {};
+      Object.keys(source).forEach(key => {
+        target[key] = deepCloneAndSerialize(source[key]);
+      });
+    } else {
+      target = source;
+    }
+
+    return target;
+  };
+
+  const onFinish = (values: AnalyticsConfig) => {
+    let result = deepCloneAndSerialize(values);
+    Object.assign(result, {
+      project_id: analyticsConfig?.project_id,
+    });
+    dispatch({
+      type: 'analytics/saveConfig',
+      payload: result,
+      callback(response) {
+        if (response.isSuccess) {
+          message.success('更新成功!');
+        } else {
+          message.error('更新失败!');
+        }
+      },
+    });
+  };
+
   return (
     <Form
-      onFinish={values => {
-        console.log(values);
-      }}
+      onFinish={onFinish}
       layout="vertical"
       initialValues={{
         keyword: analyticsConfig?.keyword,
@@ -116,7 +154,7 @@ const AnalyticsFormComponent: FC<AnalyticsFormPageProps> = (
         <Checkbox.Group options={indicatorsOptions}></Checkbox.Group>
       </Form.Item>
       <Form.Item>
-        <Button type="primary" block htmlType="submit">
+        <Button type="primary" loading={submitLoading} block htmlType="submit">
           开始分析
         </Button>
       </Form.Item>
@@ -124,7 +162,13 @@ const AnalyticsFormComponent: FC<AnalyticsFormPageProps> = (
   );
 };
 
-export default connect((props: AnalyticsFormPageProps) => ({
-  analytics: props.analytics,
-  loading: props.loading,
-}))(AnalyticsFormComponent);
+const mapStateToProps = (props: any): AnalyticsFormPageProps => {
+  return {
+    analyticsConfig: props.topic.topic.data.config,
+    analytics: props.analytics,
+    loading: props.loading,
+    dispatch: props.dispatch,
+  } as AnalyticsFormPageProps;
+};
+
+export default connect(mapStateToProps)(AnalyticsFormComponent);

@@ -1,5 +1,10 @@
 import { Effect, Reducer, Subscription } from 'umi';
-import { getConfigOptions } from '@/services/Analytics';
+import {
+  getConfigOptions,
+  saveConfig,
+  getAnalyticsData,
+} from '@/services/Analytics';
+import { HotTopic } from '@/pages/topic/analytics';
 
 export interface AnalyticsDataSourceConfig {
   name: string;
@@ -20,9 +25,21 @@ export interface AnalyticsConfig {
   indicators: string[];
 }
 
+export interface AnalyticsData {
+  general: {
+    //讨论量
+    title: string;
+    brand_color: string;
+    total_all: number;
+    total_week: number;
+  }[];
+  hot_topic: HotTopic;
+}
+
 export interface AnalyticsModelState {
   test: string;
   analyticsConfigOptions: AnalyticsConfigOptions | null;
+  analyticsData: AnalyticsData | null;
 }
 
 export interface AnalyticsModelType {
@@ -33,6 +50,8 @@ export interface AnalyticsModelType {
   };
   effects: {
     getConfigOptions: Effect;
+    saveConfig: Effect;
+    getData: Effect;
   };
   subscriptions: {
     setup: Subscription;
@@ -43,6 +62,7 @@ const AnalyticsModel: AnalyticsModelType = {
   namespace: 'analytics',
   state: {
     test: 'hello',
+    analyticsData: null,
     analyticsConfigOptions: null,
   },
   effects: {
@@ -54,6 +74,23 @@ const AnalyticsModel: AnalyticsModelType = {
         type: 'save',
         payload: {
           analyticsConfigOptions: response as AnalyticsDataSourceConfig,
+        },
+      });
+    },
+    *saveConfig(action, effects) {
+      const { payload, type, callback } = action;
+      const { call, put } = effects;
+      const response = yield call(saveConfig, payload);
+      callback && callback(response);
+    },
+    *getData(action, effects) {
+      const { payload, type, callback } = action;
+      const { call, put } = effects;
+      const response = yield call(getAnalyticsData, payload.id);
+      yield put({
+        type: 'save',
+        payload: {
+          analyticsData: response.data as AnalyticsData,
         },
       });
     },

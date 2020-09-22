@@ -11,10 +11,18 @@ import {
   Radio,
   List,
   Tag,
+  Spin,
   Table,
+  Alert,
 } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
-import { Column, StackedColumn, WordCloud, Bubble } from '@ant-design/charts';
+import {
+  Column,
+  StackedColumn,
+  WordCloud,
+  Bubble,
+  GroupedColumn,
+} from '@ant-design/charts';
 import { ColumnsType } from 'antd/es/table';
 import {
   TopicModelState,
@@ -24,7 +32,8 @@ import {
   Loading,
   history,
 } from 'umi';
-import { TopicStatus } from '@/models/TopicModel';
+import { Topic } from '@/models/TopicModel';
+import { AnalyticsData, AnalyticsModelState } from '@/models/AnalyticsModel';
 import './analytics.less';
 import { WordCloudConfig } from '@ant-design/charts/es/wordCloud';
 import { BubbleConfig } from '@ant-design/charts/es/bubble';
@@ -53,17 +62,16 @@ const TimePicker: FC<{}> = props => {
 /**
  * 话题热度
  */
-const ColumnsCharts: FC = props => {
-  const data = new Array(12)
-    .fill({
-      value: '2345',
-      name: '1月',
-    })
-    .map((item, index) => ({
-      name: `${index + 1}月`,
-      value: Math.ceil(Math.random() * 1000),
-    }));
-
+export interface HotTopic {
+  groupField: string;
+  data: {
+    name: string;
+    月份: string;
+    value: number;
+  }[];
+}
+const ColumnsCharts: FC<{ data: HotTopic }> = props => {
+  const { data } = props;
   const config = {
     title: {
       visible: true,
@@ -75,16 +83,18 @@ const ColumnsCharts: FC = props => {
         '基础柱状图的图形之间添加转化率标签图形\uFF0C用户希望关注从左到右的数据变化比例',
     },
     forceFit: true,
-    data,
+    data: data.data,
     padding: [15, 0, 30, 50],
-    xField: 'name',
+    xField: 'time',
     yField: 'value',
+    groupField: data.groupField,
     conversionTag: { visible: false },
+    color: ['#1ca9e6', '#f88c24'],
   };
 
   return (
     <div style={{ height: '400px' }}>
-      <Column {...config} />
+      <GroupedColumn {...config} />
     </div>
   );
 };
@@ -369,14 +379,51 @@ const HotNetizenTag: FC = props => {
 };
 
 interface AnalyticsPageProps {
-  status?: TopicStatus;
+  project: Topic;
   loading: Loading;
+  analyticsData: AnalyticsData;
   dispatch: Dispatch;
 }
 
 const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
-  const { status } = props;
-  console.log(status);
+  const { project, loading, dispatch, analyticsData } = props;
+  const { status, project_id } = project;
+  const isLoading: boolean = loading.effects['analytics/getData'] || false;
+
+  useEffect(() => {
+    if (status == 'ok') {
+      dispatch({
+        type: 'analytics/getData',
+        payload: { id: project_id },
+      });
+    }
+  }, [status]);
+
+  if (status == 'idle') {
+    return (
+      <Alert
+        style={{ margin: 15, textAlign: 'center' }}
+        type="error"
+        message="未开始"
+      />
+    );
+  }
+  if (status == 'analysising') {
+    return (
+      <Alert
+        style={{ margin: 15, textAlign: 'center' }}
+        type="warning"
+        message="正在分析"
+      />
+    );
+  }
+  if (isLoading || !analyticsData) {
+    return (
+      <div className="text-center p-4">
+        <Spin />
+      </div>
+    );
+  }
   const dataList = [
     '工专路0号',
     '工专路1号',
@@ -386,103 +433,46 @@ const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
     '工专路5号',
   ];
 
+  const { general, hot_topic } = analyticsData;
+  console.log(hot_topic);
   return (
     <div className="p-4">
       <Row className="mb-4" gutter={16}>
-        <Col xs={24} sm={24} md={12} lg={6}>
-          <Card>
-            <Statistic
-              title="讨论量"
-              value={8846}
-              valueStyle={{ color: 'black', fontSize: 30 }}
-            />
-          </Card>
-        </Col>
-        <Col xs={24} sm={24} md={12} lg={6}>
-          <Card>
-            <div className="flex">
-              <Avatar
-                className="mr-2"
-                size={60}
-                style={{
-                  color: '#ffffff',
-                  backgroundColor: '#f55d52',
-                  marginRight: '6px',
-                }}
-              >
-                微
-              </Avatar>
-              <Statistic
-                title="微博讨论量"
-                value={8846}
-                valueStyle={{ color: 'black', fontSize: 30 }}
-              />
-            </div>
-            <Divider style={{ margin: '5px' }} />
-            <p className="m-0">
-              周讨论量 <strong>2312</strong>
-            </p>
-          </Card>
-        </Col>
-        <Col xs={24} sm={24} md={12} lg={6}>
-          <Card>
-            <div className="flex">
-              <Avatar
-                className="mr-2"
-                size={60}
-                style={{
-                  color: '#ffffff',
-                  backgroundColor: '#1077ef',
-                  marginRight: '6px',
-                }}
-              >
-                知
-              </Avatar>
-              <Statistic
-                title="知乎讨论量"
-                value={8846}
-                valueStyle={{ color: 'black', fontSize: 30 }}
-              />
-            </div>
-            <Divider style={{ margin: '5px' }} />
-            <p className="m-0">
-              周讨论量 <strong>2312</strong>
-            </p>
-          </Card>
-        </Col>
-        <Col xs={24} sm={24} md={12} lg={6}>
-          <Card>
-            <div className="flex">
-              <Avatar
-                className="mr-2"
-                size={60}
-                style={{
-                  color: '#ffffff',
-                  backgroundColor: '#1fc4fd',
-                  marginRight: '6px',
-                }}
-              >
-                B
-              </Avatar>
-              <Statistic
-                title="B站讨论量"
-                value={8846}
-                valueStyle={{ color: 'black', fontSize: 30 }}
-              />
-            </div>
-            <Divider style={{ margin: '5px' }} />
-            <p className="m-0">
-              周讨论量 <strong>2312</strong>
-            </p>
-          </Card>
-        </Col>
+        {general.map(item => (
+          <Col key={item.title} xs={24} sm={24} md={12} lg={6}>
+            <Card>
+              <div className="flex">
+                <Avatar
+                  className="mr-2"
+                  size={60}
+                  style={{
+                    color: '#ffffff',
+                    backgroundColor: item.brand_color,
+                    marginRight: '6px',
+                  }}
+                >
+                  {item.title.charAt(0)}
+                </Avatar>
+                <Statistic
+                  title={item.title}
+                  value={item.total_all}
+                  valueStyle={{ color: 'black', fontSize: 30 }}
+                />
+              </div>
+              <Divider style={{ margin: '5px' }} />
+              <p className="m-0">
+                周讨论量 <strong>{item.total_week}</strong>
+              </p>
+            </Card>
+          </Col>
+        ))}
       </Row>
 
       <div className="mb-4">
         <Card title="话题热度" extra={<TimePicker />}>
           <Row gutter={16}>
             <Col xs={24} sm={24} md={16} lg={16}>
-              <ColumnsCharts />
+              <ColumnsCharts data={hot_topic} />
             </Col>
             <Col xs={24} sm={24} md={8} lg={8}>
               <List
@@ -541,6 +531,11 @@ const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
   );
 };
 
-export default connect((props: AnalyticsPageProps) => ({
-  loading: props.loading,
-}))(AnalyticsComponent);
+const mapStateToProps = (props: any): AnalyticsPageProps => {
+  return {
+    analyticsData: props.analytics.analyticsData,
+    loading: props.loading,
+  } as AnalyticsPageProps;
+};
+
+export default connect(mapStateToProps)(AnalyticsComponent);

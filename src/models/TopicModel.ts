@@ -2,6 +2,7 @@ import { Effect, Reducer, Subscription, AnalyticsDataSourceConfig } from 'umi';
 import { getTopics, getTopic, addTopic, delTopic } from '@/services/Topic';
 import { AnalyticsConfig } from './AnalyticsModel';
 
+// 未开始, 分析中， 已结束
 export type TopicStatus = 'idle' | 'analysising' | 'ok';
 
 export interface Topic {
@@ -13,8 +14,11 @@ export interface Topic {
 }
 
 export interface TopicInfo {
-  project: Topic;
-  config: AnalyticsConfig;
+  data: {
+    project: Topic;
+    config: AnalyticsConfig;
+  };
+  isExist: boolean;
 }
 
 export interface NewTopic {

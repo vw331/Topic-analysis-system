@@ -37,13 +37,19 @@ const TopicDetailPage: FC<TopicPageProps> = props => {
   const isloading: boolean = loading.effects['topic/getTopic'] || false;
   const params: any = useParams();
   const { id } = params;
-  const analyticsConfig = topic?.topic?.config as AnalyticsConfig;
+  const analyticsConfig = topic?.topic?.data?.config as AnalyticsConfig;
 
   useEffect(() => {
     dispatch({
       type: 'topic/getTopic',
       payload: id,
     });
+    return () => {
+      dispatch({
+        type: 'topic/save',
+        payload: { topic: null },
+      });
+    };
   }, []);
 
   if (!topic.topic || isloading) {
@@ -65,16 +71,18 @@ const TopicDetailPage: FC<TopicPageProps> = props => {
           返回首页
         </Button>
         <span className="text-white ml-10 text-lg font-bold">
-          #{topic.topic.project.name}#
+          #{topic.topic.data.project.name}#
         </span>
       </Header>
       <Layout style={{ marginTop: 64 }}>
         <Sider style={{ marginTop: 15 }} theme="light" width="350">
           <Card bordered={false}>
-            <AnalyticsFormComponent analyticsConfig={analyticsConfig} />
+            <AnalyticsFormComponent />
           </Card>
         </Sider>
-        <Content>{/** <AnalyticsComponent status="analysising"/>   */}</Content>
+        <Content>
+          <AnalyticsComponent project={topic.topic.data.project} />
+        </Content>
       </Layout>
     </Layout>
   );
