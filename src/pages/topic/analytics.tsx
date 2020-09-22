@@ -63,15 +63,14 @@ const TimePicker: FC<{}> = props => {
  * 话题热度
  */
 export interface HotTopic {
-  groupField: string;
-  data: {
-    name: string;
-    月份: string;
-    value: number;
-  }[];
+  name: string;
+  time: string;
+  value: number;
 }
-const ColumnsCharts: FC<{ data: HotTopic }> = props => {
+
+const ColumnsCharts: FC<{ data: HotTopic[] }> = props => {
   const { data } = props;
+
   const config = {
     title: {
       visible: true,
@@ -83,11 +82,11 @@ const ColumnsCharts: FC<{ data: HotTopic }> = props => {
         '基础柱状图的图形之间添加转化率标签图形\uFF0C用户希望关注从左到右的数据变化比例',
     },
     forceFit: true,
-    data: data.data,
-    padding: [15, 0, 30, 50],
+    data: data as [],
+    padding: [30, 0, 30, 50],
     xField: 'time',
     yField: 'value',
-    groupField: data.groupField,
+    groupField: 'name',
     conversionTag: { visible: false },
     color: ['#1ca9e6', '#f88c24'],
   };
@@ -99,68 +98,55 @@ const ColumnsCharts: FC<{ data: HotTopic }> = props => {
   );
 };
 
+export interface ChangingTrend {
+  name: string;
+  time: string;
+  value: number;
+}
+
 /**
  * 用户变化趋势
  */
-const StackedColumnCharts: FC = props => {
-  const data = new Array(4 * 4)
-    .fill({})
-    .map((item, index) => {
-      const time = ['2017', '2018', '2019', '2020'];
-      return {
-        year: time[Math.floor(index / 4)],
-        value: Math.floor(Math.random() * 10000),
-      };
-    })
-    .map((item, index) => {
-      const range = ['18周岁以下', '18岁-24岁', '25岁-34岁', '35岁以上'];
-      return {
-        ...item,
-        type: range[Math.floor(index % 4)],
-      };
-    });
-
+const StackedColumnCharts: FC<{ data: ChangingTrend[] }> = props => {
   const config = {
     forceFit: true,
     title: {
       visible: true,
       text: '用户变化趋势',
     },
-    padding: [15, 0, 30, 50],
-    data,
-    legend: { visible: false },
-    xField: 'year',
+    padding: [15, 0, 30, 30],
+    data: props.data as [],
+    xField: 'time',
     yField: 'value',
     yAxis: { min: 0 },
     label: { visible: false },
-    stackField: 'type',
+    stackField: 'name',
     color: ['#ae331b', '#f27957', '#dadada', '#609db7', '#1a6179'],
     connectedArea: {
       visible: true,
-      triggerOn: 'mouseenter',
+      triggerOn: false,
+      lineStyle: {
+        stroke: '#afb1b5',
+        opacity: 0.8,
+      },
+      areaStyle: {
+        fill: '#e8e8e8',
+        opacity: 0.5,
+      },
     },
   };
   return <StackedColumn {...config} />;
 };
 
+export interface WordCloud {
+  name: string;
+  value: number;
+}
 /**
  *  词云
  */
-const WordCloudChars: FC = props => {
-  const [data, setData] = useState([]);
-  useEffect(() => {
-    asyncFetch();
-  }, []);
-  const asyncFetch = () => {
-    fetch(
-      'https://gw.alipayobjects.com/os/antfincdn/fLPUlSQCRI/word-cloud.json',
-    )
-      .then(response => response.json())
-      .then(json => setData(json))
-      .catch(error => {
-        console.log('fetch data failed', error);
-      });
-  };
+const WordCloudChars: FC<{ data: WordCloud[] }> = props => {
+  const data = props.data;
   const config: WordCloudConfig = getWordCloudConfig(data);
   function getDataList(data: any[]) {
     const list: any[] = [];
@@ -178,8 +164,6 @@ const WordCloudChars: FC = props => {
       width: 600,
       height: 400,
       data: getDataList(data),
-      maskImage:
-        'https://gw.alipayobjects.com/mdn/rms_2274c3/afts/img/A*07tdTIOmvlYAAAAAAAAAAABkARQnAQ',
       wordStyle: {
         rotation: [-Math.PI / 2, Math.PI / 2],
         rotateRatio: 0.5,
@@ -221,69 +205,47 @@ const WordCloudChars: FC = props => {
   return <WordCloud {...config} />;
 };
 
+export interface TopicRelevance {
+  name: string;
+  value_x: number;
+  value_y: number;
+  rank: number;
+}
+
 /**
  *  多话题关联
  */
-const BubbleCharts: FC = props => {
-  const [data, setData] = useState([]);
-  useEffect(() => {
-    asyncFetch();
-  }, []);
-  const asyncFetch = () => {
-    fetch(
-      'https://gw.alipayobjects.com/os/antfincdn/XMCQ4qsuPa/smoking-rate.json',
-    )
-      .then(response => response.json())
-      .then(json => setData(json))
-      .catch(error => {
-        console.log('fetch data failed', error);
-      });
-  };
+const BubbleCharts: FC<{ data: TopicRelevance[] }> = props => {
+  const data = props.data as [];
+
   const config: BubbleConfig = {
     title: {
       visible: true,
       text: '多话题关联',
     },
     data,
-    xField: 'change in female rate',
-    yField: 'change in male rate',
-    sizeField: 'pop',
+    xField: 'value_x',
+    yField: 'value_y',
+    sizeField: 'rank',
     pointSize: [4, 30],
-    colorField: 'continent',
+    colorField: 'name',
     color: ['#ffd500', '#82cab2', '#193442', '#d18768', '#7e827a'],
-    xAxis: {
-      visible: true,
-      max: 5,
-      min: -25,
-    },
   };
   return <Bubble {...config} />;
 };
 
+export interface HotMessage {
+  id: string;
+  title: string;
+  source: string;
+  create_time: string;
+  reposted: number;
+}
 /**
  * 热门信息
  * @param props
  */
-const HotMessageTable: FC = props => {
-  interface HotMessage {
-    id: string;
-    title: string;
-    source: string;
-    create_time: string;
-  }
-
-  const data: HotMessage[] = new Array(8)
-    .fill({
-      id: '1',
-      title: '热门信息',
-      source: '今日头条',
-      create_time: '2020-02-12',
-    })
-    .map((item, index) => ({
-      ...item,
-      id: index,
-    }));
-
+const HotMessageTable: FC<{ data: HotMessage[] }> = props => {
   const columns: ColumnsType<HotMessage> = [
     {
       title: '标题',
@@ -300,48 +262,56 @@ const HotMessageTable: FC = props => {
       dataIndex: 'create_time',
       key: 'create_time',
     },
+    {
+      title: '转发数',
+      dataIndex: 'reposted',
+      key: 'reposted',
+    },
   ];
 
   return (
-    <Table dataSource={data} columns={columns} rowKey={record => record.id} />
+    <Table
+      dataSource={props.data}
+      columns={columns}
+      rowKey={record => record.id}
+    />
   );
 };
 
 /**
  * 热点网民
  */
-const HotNetizenTag: FC = props => {
-  const tabList = [
-    {
-      tab: '全部',
-      key: 'tab1',
-    },
-    {
-      tab: '微博',
-      key: 'tab2',
-    },
-    {
-      tab: '知乎',
-      key: 'tab3',
-    },
-    {
-      tab: 'Bilili',
-      key: 'tab4',
-    },
-  ];
+interface Netizen {
+  id: string | number;
+  name: string;
+  avatar: string;
+  describe: string;
+}
+export interface HotNetizen {
+  tab: string;
+  key: string;
+  content: Netizen[];
+}
 
-  const cardGrid = (list: any[]) => {
+const HotNetizenTag: FC<{ data: HotNetizen[] }> = props => {
+  const data = props.data;
+
+  const tabList = data.map(item => ({
+    tab: item.tab,
+    key: item.key,
+  }));
+  console.log(tabList);
+
+  const cardGrid = (list: Netizen[]) => {
     return (
       <Card bodyStyle={{ padding: 0 }}>
         {list.map((item, index) => {
           return (
             <Card.Grid style={{ width: '25%' }} key={index}>
               <Card.Meta
-                avatar={
-                  <Avatar src="https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png" />
-                }
-                title="Card title"
-                description="This is the description"
+                avatar={<Avatar src={item.avatar} />}
+                title={item.name}
+                description={item.describe}
               />
             </Card.Grid>
           );
@@ -350,16 +320,12 @@ const HotNetizenTag: FC = props => {
     );
   };
 
-  const netizenList = new Array(12).fill({});
+  let contentList = {};
+  data.forEach(item => {
+    contentList[item.key] = cardGrid(item.content);
+  });
 
-  const contentList = {
-    tab1: cardGrid(netizenList),
-    tab2: <p>content2</p>,
-    tab3: <p>content3</p>,
-    tab4: <p>content4</p>,
-  };
-
-  const [key, setKey] = useState('tab1');
+  const [key, setKey] = useState(tabList[0].key);
 
   return (
     <>
@@ -424,17 +390,18 @@ const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
       </div>
     );
   }
-  const dataList = [
-    '工专路0号',
-    '工专路1号',
-    '工专路2号',
-    '工专路3号',
-    '工专路4号',
-    '工专路5号',
-  ];
 
-  const { general, hot_topic } = analyticsData;
-  console.log(hot_topic);
+  const {
+    general,
+    hot_topic,
+    hot_topic_ranking,
+    changing_trend,
+    word_cloud,
+    topic_relevance,
+    hot_message,
+    hot_netizen,
+  } = analyticsData;
+
   return (
     <div className="p-4">
       <Row className="mb-4" gutter={16}>
@@ -471,13 +438,13 @@ const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
       <div className="mb-4">
         <Card title="话题热度" extra={<TimePicker />}>
           <Row gutter={16}>
-            <Col xs={24} sm={24} md={16} lg={16}>
+            <Col xs={24} sm={24} md={18} lg={18}>
               <ColumnsCharts data={hot_topic} />
             </Col>
-            <Col xs={24} sm={24} md={8} lg={8}>
+            <Col xs={24} sm={24} md={6} lg={6}>
               <List
                 header={<div>热门话题排行</div>}
-                dataSource={dataList}
+                dataSource={hot_topic_ranking}
                 split={false}
                 renderItem={(item, index) => {
                   const prefix =
@@ -502,30 +469,30 @@ const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
       <Row className="mb-4" gutter={16}>
         <Col xs={24} sm={24} md={12} lg={12}>
           <Card>
-            <StackedColumnCharts />
+            <StackedColumnCharts data={changing_trend} />
           </Card>
         </Col>
         <Col xs={24} sm={24} md={12} lg={12}>
           <Card>
-            <WordCloudChars />
+            <WordCloudChars data={word_cloud} />
           </Card>
         </Col>
       </Row>
 
       <div className="mb-4">
         <Card>
-          <BubbleCharts />
+          <BubbleCharts data={topic_relevance} />
         </Card>
       </div>
 
       <div className="mb-4">
         <Card title="热门信息" bodyStyle={{ padding: 0 }}>
-          <HotMessageTable />
+          <HotMessageTable data={hot_message} />
         </Card>
       </div>
 
       <div className="mb-4">
-        <HotNetizenTag />
+        <HotNetizenTag data={hot_netizen} />
       </div>
     </div>
   );

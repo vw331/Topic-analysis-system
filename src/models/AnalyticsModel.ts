@@ -4,7 +4,14 @@ import {
   saveConfig,
   getAnalyticsData,
 } from '@/services/Analytics';
-import { HotTopic } from '@/pages/topic/analytics';
+import {
+  HotTopic,
+  ChangingTrend,
+  WordCloud,
+  TopicRelevance,
+  HotMessage,
+  HotNetizen,
+} from '@/pages/topic/analytics';
 
 export interface AnalyticsDataSourceConfig {
   name: string;
@@ -33,7 +40,13 @@ export interface AnalyticsData {
     total_all: number;
     total_week: number;
   }[];
-  hot_topic: HotTopic;
+  hot_topic: HotTopic[]; // 话题热度
+  hot_topic_ranking: string[]; // 话题热度排名
+  changing_trend: ChangingTrend[]; // 变化趋势
+  word_cloud: WordCloud[]; //词云
+  topic_relevance: TopicRelevance[]; //关联话题
+  hot_message: HotMessage[]; // 热门信息
+  hot_netizen: HotNetizen[]; // 热门网民
 }
 
 export interface AnalyticsModelState {

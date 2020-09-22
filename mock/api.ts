@@ -13,7 +13,9 @@ import {
   AnalyticsConfig,
   AnalyticsData,
 } from '@/models/AnalyticsModel';
+import { HotTopic, ChangingTrend, HotMessage } from '@/pages/topic/analytics';
 import request from '@/utils/request';
+const word_cloud = require('./word_cloud.json');
 
 const sleep = (time: number = 2000) =>
   new Promise(resolve => setTimeout(resolve, time));
@@ -120,6 +122,7 @@ export default {
   },
   'GET /api/analytics_data/:id': async (req: Request, res: Response) => {
     await sleep(200);
+
     const result: AnalyticsData = {
       general: [
         {
@@ -147,71 +150,219 @@ export default {
           total_week: 2345,
         },
       ],
-      hot_topic: {
-        groupField: 'name',
-        data: [
-          {
-            name: 'b站',
-            value: 653,
-            time: '1月',
-          },
-          {
-            name: 'b站',
-            value: 231,
-            time: '2月',
-          },
-          {
-            name: 'b站',
-            value: 124,
-            time: '3月',
-          },
-          {
-            name: 'b站',
-            value: 756,
-            time: '4月',
-          },
-          {
-            name: 'b站',
-            value: 54,
-            time: '5月',
-          },
-          {
-            name: 'b站',
-            value: 986,
-            time: '6月',
-          },
-          {
-            name: '微博',
-            value: 234,
-            time: '1月',
-          },
-          {
-            name: '微博',
-            value: 65,
-            time: '2月',
-          },
-          {
-            name: '微博',
-            value: 345,
-            time: '3月',
-          },
-          {
-            name: '微博',
-            value: 123,
-            time: '4月',
-          },
-          {
-            name: '微博',
-            value: 765,
-            time: '5月',
-          },
-          {
-            name: '微博',
-            value: 433,
-            time: '6月',
-          },
-        ],
-      },
+      hot_topic: [
+        {
+          name: 'b站',
+          value: 653,
+          time: '1月',
+        },
+        {
+          name: 'b站',
+          value: 231,
+          time: '2月',
+        },
+        {
+          name: 'b站',
+          value: 124,
+          time: '3月',
+        },
+        {
+          name: 'b站',
+          value: 756,
+          time: '4月',
+        },
+        {
+          name: 'b站',
+          value: 54,
+          time: '5月',
+        },
+        {
+          name: 'b站',
+          value: 986,
+          time: '6月',
+        },
+        {
+          name: '微博',
+          value: 234,
+          time: '1月',
+        },
+        {
+          name: '微博',
+          value: 65,
+          time: '2月',
+        },
+        {
+          name: '微博',
+          value: 345,
+          time: '3月',
+        },
+        {
+          name: '微博',
+          value: 123,
+          time: '4月',
+        },
+        {
+          name: '微博',
+          value: 765,
+          time: '5月',
+        },
+        {
+          name: '微博',
+          value: 433,
+          time: '6月',
+        },
+      ],
+      hot_topic_ranking: [
+        '工专路0号',
+        '工专路1号',
+        '工专路2号',
+        '工专路3号',
+        '工专路4号',
+        '工专路5号',
+        '工专路6号',
+      ],
+      changing_trend: [
+        {
+          name: '18周岁以下',
+          time: '2017年',
+          value: 123,
+        },
+        {
+          name: '18周岁24周岁',
+          time: '2017年',
+          value: 234,
+        },
+        {
+          name: '24周岁-36周岁',
+          time: '2017年',
+          value: 431,
+        },
+        {
+          name: '36周岁以上',
+          time: '2017年',
+          value: 21,
+        },
+        {
+          name: '18周岁以下',
+          time: '2018年',
+          value: 43,
+        },
+        {
+          name: '18周岁24周岁',
+          time: '2018年',
+          value: 234,
+        },
+        {
+          name: '24周岁-36周岁',
+          time: '2018年',
+          value: 432,
+        },
+        {
+          name: '36周岁以上',
+          time: '2018年',
+          value: 34,
+        },
+        {
+          name: '18周岁以下',
+          time: '2019年',
+          value: 43,
+        },
+        {
+          name: '18周岁24周岁',
+          time: '2019年',
+          value: 234,
+        },
+        {
+          name: '24周岁-36周岁',
+          time: '2019年',
+          value: 432,
+        },
+        {
+          name: '36周岁以上',
+          time: '2019年',
+          value: 34,
+        },
+      ],
+      word_cloud: word_cloud,
+      topic_relevance: [
+        {
+          name: 'java',
+          value_x: 24,
+          value_y: 28,
+          rank: 243,
+        },
+        {
+          name: 'javascript',
+          value_x: 23,
+          value_y: 89,
+          rank: 193,
+        },
+        {
+          name: 'typescript',
+          value_x: 34,
+          value_y: 98,
+          rank: 124,
+        },
+      ],
+      hot_message: (function() {
+        const data: HotMessage[] = new Array(30)
+          .fill({
+            id: '1',
+            title: '热门信息',
+            source: '今日头条',
+            create_time: '2020-02-12',
+            reposted: 0,
+          })
+          .map((item, index) => ({
+            ...item,
+            id: index,
+            title: item.title + index,
+            reposted: Math.round(Math.random() * 1000),
+          }));
+        return data;
+      })(),
+      hot_netizen: [
+        {
+          tab: '知乎',
+          key: '1',
+          content: [
+            {
+              id: 1,
+              name: '张三',
+              avatar:
+                'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+              describe: '发贴量: 145',
+            },
+            {
+              id: 2,
+              name: '李四',
+              avatar:
+                'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+              describe: '发贴量: 145',
+            },
+          ],
+        },
+        {
+          tab: '微博',
+          key: '2',
+          content: [
+            {
+              id: 1,
+              name: '王五',
+              avatar:
+                'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+              describe: '发贴量: 145',
+            },
+            {
+              id: 2,
+              name: '赵六',
+              avatar:
+                'https://zos.alipayobjects.com/rmsportal/ODTLcjxAfvqbxHnVXCYX.png',
+              describe: '发贴量: 145',
+            },
+          ],
+        },
+      ],
     };
     res.send({ isSuccess: true, data: result });
   },
