@@ -62,7 +62,7 @@ const TopicDetailPage: FC<TopicPageProps> = props => {
 
   return (
     <Layout>
-      <Header style={{ position: 'fixed', zIndex: 1, width: '100%' }}>
+      <Header style={{ position: 'fixed', zIndex: 999, width: '100%' }}>
         <Button
           type="link"
           onClick={() => history.push('/')}

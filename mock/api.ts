@@ -363,6 +363,64 @@ export default {
           ],
         },
       ],
+      map_netizen: [
+        {
+          name: '江苏省',
+          value: 92595,
+        },
+        {
+          name: '澳门特别行政区',
+          value: 1234,
+        },
+        {
+          name: '浙江省',
+          value: 56197.15,
+        },
+        {
+          name: '山东省',
+          value: 76469.67,
+        },
+        {
+          name: '青海省',
+          value: 2865.23,
+        },
+        {
+          name: '重庆市',
+          value: 20363.19,
+        },
+        {
+          name: '福建省',
+          value: 35804,
+        },
+      ],
+      gender_type: [
+        {
+          type: '男',
+          value: 234,
+        },
+        {
+          type: '女',
+          value: 335,
+        },
+        {
+          type: '未知',
+          value: 455,
+        },
+      ],
+      comment_emotional_type: [
+        {
+          type: '愤怒',
+          value: 345,
+        },
+        {
+          type: '开心',
+          value: 23,
+        },
+        {
+          type: '嘲讽',
+          value: 324,
+        },
+      ],
     };
     res.send({ isSuccess: true, data: result });
   },

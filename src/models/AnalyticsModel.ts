@@ -11,6 +11,9 @@ import {
   TopicRelevance,
   HotMessage,
   HotNetizen,
+  MapNetizen,
+  GenderType,
+  CommentEmotionalType,
 } from '@/pages/topic/analytics';
 
 export interface AnalyticsDataSourceConfig {
@@ -47,6 +50,9 @@ export interface AnalyticsData {
   topic_relevance: TopicRelevance[]; //关联话题
   hot_message: HotMessage[]; // 热门信息
   hot_netizen: HotNetizen[]; // 热门网民
+  map_netizen: MapNetizen[]; // 发布人员地理分布
+  gender_type: GenderType[]; // 性别分布
+  comment_emotional_type: CommentEmotionalType[];
 }
 
 export interface AnalyticsModelState {

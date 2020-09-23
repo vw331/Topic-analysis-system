@@ -35,8 +35,12 @@ import {
 import { Topic } from '@/models/TopicModel';
 import { AnalyticsData, AnalyticsModelState } from '@/models/AnalyticsModel';
 import './analytics.less';
+import { Rose } from '@ant-design/charts';
 import { WordCloudConfig } from '@ant-design/charts/es/wordCloud';
 import { BubbleConfig } from '@ant-design/charts/es/bubble';
+import { Scene } from '@antv/l7';
+import { CountryLayer } from '@antv/l7-district';
+import { Mapbox } from '@antv/l7-maps';
 
 const { RangePicker } = DatePicker;
 
@@ -344,6 +348,134 @@ const HotNetizenTag: FC<{ data: HotNetizen[] }> = props => {
   );
 };
 
+/**
+ *  地图分布
+ */
+export interface MapNetizen {
+  name: string;
+  value: number;
+}
+const MapDistribution: FC<{ data: MapNetizen[] }> = props => {
+  useEffect(() => {
+    console.log('MapDistribution');
+    const scene = new Scene({
+      id: 'map',
+      map: new Mapbox({
+        center: [116.2825, 39.9],
+        pitch: 0,
+        style: 'blank',
+        zoom: 3,
+        minZoom: 0,
+        maxZoom: 10,
+      }),
+    });
+
+    scene.on('loaded', () => {
+      new CountryLayer(scene, {
+        data: props.data,
+        joinBy: ['NAME_CHN', 'name'],
+        depth: 1,
+        provinceStroke: '#783D2D',
+        cityStroke: '#EBCCB4',
+        cityStrokeWidth: 1,
+        fill: {
+          color: {
+            field: 'NAME_CHN',
+            values: [
+              '#feedde',
+              '#fdd0a2',
+              '#fdae6b',
+              '#fd8d3c',
+              '#e6550d',
+              '#a63603',
+            ],
+          },
+        },
+        popup: {
+          enable: true,
+          Html: props => {
+            console.log(props);
+            return `<span>${props.NAME_CHN}:${props.value || '未知'}</span>`;
+          },
+        },
+      });
+    });
+
+    return () => {
+      scene.destroy();
+    };
+  }, []);
+
+  return (
+    <div style={{ height: 400, position: 'relative' }}>
+      <div
+        id="map"
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+        }}
+      />
+    </div>
+  );
+};
+
+/**
+ *  性别分布
+ */
+export interface GenderType {
+  type: string;
+  value: number;
+}
+const GenderDistribution: FC<{ data: GenderType[] }> = props => {
+  const config = {
+    forceFit: true,
+    title: {
+      visible: true,
+      text: '性别分布',
+    },
+    radius: 0.8,
+    data: props.data as [],
+    radiusField: 'value',
+    categoryField: 'type',
+    colorField: 'type',
+    label: {
+      visible: true,
+      type: 'outer',
+      content: (text: any) => text.value,
+    },
+  };
+  return <Rose {...config} />;
+};
+
+/**
+ * 评论情感
+ */
+export interface CommentEmotionalType extends GenderType {}
+
+const CommentEmotional: FC<{ data: CommentEmotionalType[] }> = props => {
+  const config = {
+    forceFit: true,
+    title: {
+      visible: true,
+      text: '评论情感分析',
+    },
+    radius: 0.8,
+    data: props.data as [],
+    radiusField: 'value',
+    categoryField: 'type',
+    colorField: 'type',
+    label: {
+      visible: true,
+      type: 'outer',
+      content: (text: any) => text.value,
+    },
+  };
+  return <Rose {...config} />;
+};
+
 interface AnalyticsPageProps {
   project: Topic;
   loading: Loading;
@@ -400,6 +532,9 @@ const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
     topic_relevance,
     hot_message,
     hot_netizen,
+    map_netizen,
+    gender_type,
+    comment_emotional_type,
   } = analyticsData;
 
   return (
@@ -490,6 +625,25 @@ const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
           <HotMessageTable data={hot_message} />
         </Card>
       </div>
+
+      <div className="mb-4">
+        <Card title="地理位置分布" bodyStyle={{ padding: 0 }}>
+          <MapDistribution data={map_netizen} />
+        </Card>
+      </div>
+
+      <Row className="mb-4" gutter={16}>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Card>
+            <GenderDistribution data={gender_type} />
+          </Card>
+        </Col>
+        <Col xs={24} sm={24} md={12} lg={12}>
+          <Card>
+            <CommentEmotional data={comment_emotional_type} />
+          </Card>
+        </Col>
+      </Row>
 
       <div className="mb-4">
         <HotNetizenTag data={hot_netizen} />

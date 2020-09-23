@@ -22,6 +22,9 @@
   "dependencies": {
     "@ant-design/charts": "^0.9.13",
     "@ant-design/pro-layout": "^6.4.18",
+    "@antv/l7": "^2.2.37",
+    "@antv/l7-district": "^2.2.37",
+    "@antv/l7-maps": "^2.2.37",
     "@umijs/preset-react": "1.x",
     "@umijs/test": "^3.2.20",
     "lint-staged": "^10.0.7",
