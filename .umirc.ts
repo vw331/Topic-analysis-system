@@ -3,8 +3,9 @@ import { defineConfig } from 'umi';
 export default defineConfig({
   title: '你好呀',
   layout: {
-    name: '社交媒体话题分析',
+    name: '寻乌用户调查系统',
     locale: false,
+    logo: false,
   },
   nodeModulesTransform: {
     type: 'none',

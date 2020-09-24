@@ -571,7 +571,7 @@ const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
       </Row>
 
       <div className="mb-4">
-        <Card title="话题热度" extra={<TimePicker />}>
+        <Card title="话题热度">
           <Row gutter={16}>
             <Col xs={24} sm={24} md={18} lg={18}>
               <ColumnsCharts data={hot_topic} />

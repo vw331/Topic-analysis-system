@@ -120,7 +120,7 @@ export default {
     await sleep(200);
     res.send({ isSuccess: true });
   },
-  'GET /api/analytics_data/:id': async (req: Request, res: Response) => {
+  'GET /api/report/:id': async (req: Request, res: Response) => {
     await sleep(200);
 
     const result: AnalyticsData = {

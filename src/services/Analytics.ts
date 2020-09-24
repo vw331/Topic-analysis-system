@@ -16,5 +16,5 @@ export function saveConfig(body: AnalyticsConfig) {
 
 // 获取数据
 export function getAnalyticsData(id: string) {
-  return request(`/api/analytics_data/${id}`);
+  return request(`/api/report/${id}`);
 }
