@@ -10,6 +10,7 @@ export interface Topic {
   name: string;
   author: string;
   create_date: string;
+  progress: string | number;
   status: TopicStatus;
 }
 

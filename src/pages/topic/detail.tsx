@@ -60,6 +60,15 @@ const TopicDetailPage: FC<TopicPageProps> = props => {
     );
   }
 
+  const leftSize =
+    topic.topic.data.project.status !== 'ok' ? (
+      <Sider style={{ marginTop: 15 }} theme="light" width="350">
+        <Card bordered={false}>
+          <AnalyticsFormComponent />
+        </Card>
+      </Sider>
+    ) : null;
+
   return (
     <Layout>
       <Header style={{ position: 'fixed', zIndex: 999, width: '100%' }}>
@@ -75,11 +84,7 @@ const TopicDetailPage: FC<TopicPageProps> = props => {
         </span>
       </Header>
       <Layout style={{ marginTop: 64 }}>
-        <Sider style={{ marginTop: 15 }} theme="light" width="350">
-          <Card bordered={false}>
-            <AnalyticsFormComponent />
-          </Card>
-        </Sider>
+        {leftSize}
         <Content>
           <AnalyticsComponent project={topic.topic.data.project} />
         </Content>

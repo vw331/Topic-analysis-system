@@ -1,7 +1,11 @@
 import { defineConfig } from 'umi';
 
 export default defineConfig({
+  define: {
+    API_SERVER: 'http://nenkon.natapp1.cc',
+  },
   title: '你好呀',
+  base: process.env.BASE,
   layout: {
     name: '寻乌用户调查系统',
     locale: false,

@@ -47,6 +47,7 @@ export default {
       name: '名称',
       author: '张三',
       create_date: '2020-09-12',
+      progress: '成功',
       status: 'idle',
     };
 
@@ -83,6 +84,7 @@ export default {
           name: '测试专用',
           author: 'sunhao',
           create_date: '2020-03-13',
+          progress: '分析完成',
           status: 'ok',
         },
         config: {

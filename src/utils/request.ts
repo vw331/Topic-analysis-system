@@ -43,7 +43,7 @@ const errorHandler = (error: { response: Response }): Response => {
 };
 
 const request = extend({
-  //prefix: 'http://nenkon.natapp1.cc',
+  prefix: 'http://nenkon.natapp1.cc',
   errorHandler,
   // 默认错误处理
   // credentials: 'include'

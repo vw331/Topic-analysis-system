@@ -108,9 +108,9 @@ const TopicPage: FC<TopicPageProps> = props => {
           case 'idle':
             return <Tag color="red">未开始</Tag>;
           case 'analysising':
-            return <Tag color="blue">分析完成</Tag>;
+            return <Tag color="blue">分析中</Tag>;
           case 'ok':
-            return <Tag color="warning">分析中</Tag>;
+            return <Tag color="warning">分析完成</Tag>;
           default:
             return null;
         }

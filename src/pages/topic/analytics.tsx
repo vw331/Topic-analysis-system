@@ -14,6 +14,7 @@ import {
   Spin,
   Table,
   Alert,
+  Empty,
 } from 'antd';
 import { UserOutlined } from '@ant-design/icons';
 import {
@@ -298,13 +299,16 @@ export interface HotNetizen {
 }
 
 const HotNetizenTag: FC<{ data: HotNetizen[] }> = props => {
+  if (!props.data || !props.data.length) {
+    return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
+  }
+
   const data = props.data;
 
   const tabList = data.map(item => ({
     tab: item.tab,
     key: item.key,
   }));
-  console.log(tabList);
 
   const cardGrid = (list: Netizen[]) => {
     return (
@@ -356,8 +360,10 @@ export interface MapNetizen {
   value: number;
 }
 const MapDistribution: FC<{ data: MapNetizen[] }> = props => {
+  if (!props.data || !props.data.length) {
+    return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
+  }
   useEffect(() => {
-    console.log('MapDistribution');
     const scene = new Scene({
       id: 'map',
       map: new Mapbox({
@@ -430,6 +436,9 @@ export interface GenderType {
   value: number;
 }
 const GenderDistribution: FC<{ data: GenderType[] }> = props => {
+  if (!props.data || !props.data.length) {
+    return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
+  }
   const config = {
     forceFit: true,
     title: {
@@ -456,6 +465,9 @@ const GenderDistribution: FC<{ data: GenderType[] }> = props => {
 export interface CommentEmotionalType extends GenderType {}
 
 const CommentEmotional: FC<{ data: CommentEmotionalType[] }> = props => {
+  if (!props.data || !props.data.length) {
+    return <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />;
+  }
   const config = {
     forceFit: true,
     title: {
@@ -485,7 +497,7 @@ interface AnalyticsPageProps {
 
 const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
   const { project, loading, dispatch, analyticsData } = props;
-  const { status, project_id } = project;
+  const { status, progress, project_id } = project;
   const isLoading: boolean = loading.effects['analytics/getData'] || false;
 
   useEffect(() => {
@@ -503,6 +515,7 @@ const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
         style={{ margin: 15, textAlign: 'center' }}
         type="error"
         message="未开始"
+        description={`当前进度:${progress}`}
       />
     );
   }
@@ -512,6 +525,7 @@ const AnalyticsComponent: FC<AnalyticsPageProps> = props => {
         style={{ margin: 15, textAlign: 'center' }}
         type="warning"
         message="正在分析"
+        description={`当前进度:${progress}`}
       />
     );
   }
