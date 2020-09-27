@@ -168,6 +168,7 @@ const WordCloudChars: FC<{ data: WordCloud[] }> = props => {
     return {
       width: 600,
       height: 400,
+      pixelRatio: 1,
       data: getDataList(data),
       wordStyle: {
         rotation: [-Math.PI / 2, Math.PI / 2],
@@ -234,6 +235,12 @@ const BubbleCharts: FC<{ data: TopicRelevance[] }> = props => {
     sizeField: 'rank',
     pointSize: [4, 30],
     colorField: 'name',
+    tooltip: {
+      visible: true,
+      showTitle: true,
+      titleField: 'name',
+      fields: ['rank', 'value_x', 'value_y'],
+    },
     color: ['#ffd500', '#82cab2', '#193442', '#d18768', '#7e827a'],
   };
   return <Bubble {...config} />;
@@ -371,8 +378,6 @@ const MapDistribution: FC<{ data: MapNetizen[] }> = props => {
         pitch: 0,
         style: 'blank',
         zoom: 3,
-        minZoom: 0,
-        maxZoom: 10,
       }),
     });
 
